@@ -8,10 +8,26 @@ Docker-symfony gives you everything you need for developing Symfony application.
 
 ## Installation
 
+If you are on Mac and you want performances, use docker-machine instead of Docker for Mac:
+```
+brew install docker-machine-nfs
+```
+
+```
+docker-machine create --driver=virtualbox --virtualbox-cpu-count=4 --virtualbox-memory=4096 --virtualbox-disk-size=50000 symfony
+```
+
+```
+docker-machine-nfs symfony
+```
+
+To end, use `eval $(docker-machine env kitozyme)`
+Please note you will have to execute this command on each terminal you want to use docker containers.
+
 1. Create a `.env` from the `.env.dist` file. Adapt it according to your symfony application
 
     ```bash
-    cp .env.dist .env
+    cp docker-env.dist docker-env
     ```
 
 
@@ -23,6 +39,14 @@ Docker-symfony gives you everything you need for developing Symfony application.
     ```
 
 3. Update your system host file (add symfony.dev)
+
+    If you are on Mac OS and you are using docker-machine-nfs, use this command:
+    
+    ```bash
+    sudo echo $(docker-machine ip symfony) "symfony.dev" >> /etc/hosts
+    ```
+    
+    Else, use this:
 
     ```bash
     # UNIX only: get containers IP address and update host (replace IP according to your configuration) (on Windows, edit C:\Windows\System32\drivers\etc\hosts)
@@ -37,7 +61,7 @@ Docker-symfony gives you everything you need for developing Symfony application.
         ```yml
         # path/to/your/symfony-project/app/config/parameters.yml
         parameters:
-            database_host: db
+            database_host: percona
         ```
 
     2. Composer install & create database
@@ -76,7 +100,7 @@ If you want to add optionnals containers like Redis, PHPMyAdmin... take a look o
 
 Have a look at the `docker-compose.yml` file, here are the `docker-compose` built images:
 
-* `db`: This is the MySQL database container,
+* `percona`: This is the MySQL database container,
 * `php`: This is the PHP-FPM container in which the application volume is mounted,
 * `nginx`: This is the Nginx webserver container in which application volume is mounted too,
 * `elk`: This is a ELK stack container which uses Logstash to collect logs, send them into Elasticsearch and visualize them with Kibana.
@@ -85,12 +109,12 @@ This results in the following running containers:
 
 ```bash
 $ docker-compose ps
-           Name                          Command               State              Ports            
+           Name                          Command                    State              Ports            
 --------------------------------------------------------------------------------------------------
-dockersymfony_db_1            /entrypoint.sh mysqld            Up      0.0.0.0:3306->3306/tcp      
-dockersymfony_elk_1           /usr/bin/supervisord -n -c ...   Up      0.0.0.0:81->80/tcp          
-dockersymfony_nginx_1         nginx                            Up      443/tcp, 0.0.0.0:80->80/tcp
-dockersymfony_php_1           php-fpm                          Up      0.0.0.0:9000->9000/tcp      
+dockersymfony_percona_1             /entrypoint.sh mysqld            Up      0.0.0.0:3306->3306/tcp      
+dockersymfony_elk_1                 /usr/bin/supervisord -n -c ...   Up      0.0.0.0:81->80/tcp          
+dockersymfony_nginx_1               nginx                            Up      443/tcp, 0.0.0.0:80->80/tcp
+dockersymfony_php_1                 php-fpm                          Up      0.0.0.0:9000->9000/tcp      
 ```
 
 ## Useful commands
@@ -114,7 +138,7 @@ $ docker inspect --format '{{ .NetworkSettings.Networks.dockersymfony_default.IP
 $ docker inspect $(docker ps -f name=nginx -q) | grep IPAddress
 
 # MySQL commands
-$ docker-compose exec db mysql -uroot -p"root"
+$ docker-compose exec percona mysql -uroot -p"root"
 
 # F***ing cache/logs folder
 $ sudo chmod -R 777 app/cache app/logs # Symfony2
