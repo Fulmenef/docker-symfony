@@ -47,3 +47,10 @@ services:
       - php
       - nginx
     tty: true
+
+  maildev:
+    image: djfarrelly/maildev:latest
+    env_file: docker-env
+    ports:
+      - "1080:80"
+    tty: true
