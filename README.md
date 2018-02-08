@@ -1,4 +1,4 @@
-# Docker Symfony (PHP7-FPM - NGINX - MySQL - ELK)
+# Docker Symfony (PHP7-FPM - NGINX - MySQL - ELK - Maildev)
 
 [![Build Status](https://travis-ci.org/maxpou/docker-symfony.svg?branch=master)](https://travis-ci.org/maxpou/docker-symfony)
 
@@ -7,22 +7,6 @@
 Docker-symfony gives you everything you need for developing Symfony application. This complete stack run with docker and [docker-compose (1.7 or higher)](https://docs.docker.com/compose/).
 
 ## Installation
-
-If you are on Mac and you want performances, use docker-machine instead of Docker for Mac:
-```
-brew install docker-machine-nfs
-```
-
-```
-docker-machine create --driver=virtualbox --virtualbox-cpu-count=4 --virtualbox-memory=4096 --virtualbox-disk-size=50000 symfony
-```
-
-```
-docker-machine-nfs symfony
-```
-
-To end, use `eval $(docker-machine env kitozyme)`
-Please note you will have to execute this command on each terminal you want to use docker containers.
 
 1. Create a `.env` from the `.env.dist` file. Adapt it according to your symfony application
 
@@ -40,28 +24,17 @@ Please note you will have to execute this command on each terminal you want to u
 
 3. Update your system host file (add symfony.dev)
 
-    If you are on Mac OS and you are using docker-machine-nfs, use this command:
-    
     ```bash
-    sudo echo $(docker-machine ip symfony) "symfony.dev" >> /etc/hosts
+    sudo echo 127.0.0.1 "symfony.local" >> /etc/hosts
     ```
-    
-    Else, use this:
-
-    ```bash
-    # UNIX only: get containers IP address and update host (replace IP according to your configuration) (on Windows, edit C:\Windows\System32\drivers\etc\hosts)
-    $ sudo echo $(docker network inspect bridge | grep Gateway | grep -o -E '[0-9\.]+') "symfony.dev" >> /etc/hosts
-    ```
-
-    **Note:** For **OS X**, please take a look [here](https://docs.docker.com/docker-for-mac/networking/) and for **Windows** read [this](https://docs.docker.com/docker-for-windows/#/step-4-explore-the-application-and-run-examples) (4th step).
-
+   
 4. Prepare Symfony app
     1. Update app/config/parameters.yml
 
         ```yml
         # path/to/your/symfony-project/app/config/parameters.yml
         parameters:
-            database_host: percona
+            database_host: mysql
         ```
 
     2. Composer install & create database
@@ -87,9 +60,9 @@ Please note you will have to execute this command on each terminal you want to u
 
 Just run `docker-compose up -d`, then:
 
-* Symfony app: visit [symfony.dev](http://symfony.dev)  
-* Symfony dev mode: visit [symfony.dev/app_dev.php](http://symfony.dev/app_dev.php)  
-* Logs (Kibana): [symfony.dev:81](http://symfony.dev:81)
+* Symfony app: visit [symfony.local](http://symfony.local)  
+* Symfony dev mode: visit [symfony.local/app_dev.php](http://symfony.local/app_dev.php)  
+* Logs (Kibana): [symfony.local:81](http://symfony.local:81)
 * Logs (files location): logs/nginx and logs/symfony
 
 ## Customize
@@ -100,10 +73,11 @@ If you want to add optionnals containers like Redis, PHPMyAdmin... take a look o
 
 Have a look at the `docker-compose.yml` file, here are the `docker-compose` built images:
 
-* `percona`: This is the MySQL database container,
+* `mysql`: This is the MySQL database container,
 * `php`: This is the PHP-FPM container in which the application volume is mounted,
 * `nginx`: This is the Nginx webserver container in which application volume is mounted too,
 * `elk`: This is a ELK stack container which uses Logstash to collect logs, send them into Elasticsearch and visualize them with Kibana.
+* `maildev`: This is a container which simulate a smtp server and allow to send mail which you can view on port :1080.
 
 This results in the following running containers:
 
@@ -111,10 +85,11 @@ This results in the following running containers:
 $ docker-compose ps
            Name                          Command                    State              Ports            
 --------------------------------------------------------------------------------------------------
-dockersymfony_percona_1             /entrypoint.sh mysqld            Up      0.0.0.0:3306->3306/tcp      
+dockersymfony_mysql_1               /entrypoint.sh mysqld            Up      0.0.0.0:3306->3306/tcp      
 dockersymfony_elk_1                 /usr/bin/supervisord -n -c ...   Up      0.0.0.0:81->80/tcp          
-dockersymfony_nginx_1               nginx                            Up      443/tcp, 0.0.0.0:80->80/tcp
-dockersymfony_php_1                 php-fpm                          Up      0.0.0.0:9000->9000/tcp      
+dockersymfony_nginx_1               nginx -g daemon off;             Up      443/tcp, 0.0.0.0:80->80/tcp
+dockersymfony_php_1                 docker-php-entrypoint php-fpm    Up      0.0.0.0:9000->9000/tcp      
+dockersymfony_maildev_1             bin/maildev --web 80 --smtp 25   Up      25/tcp, 0.0.0.0:1080->80/tcp      
 ```
 
 ## Useful commands

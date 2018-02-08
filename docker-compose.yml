@@ -1,19 +1,15 @@
-version: '2.1'
+version: '3'
 
 services:
   nginx:
-    image: nginx:latest
+    build: nginx
     env_file: docker-env
     depends_on:
       - php
     ports:
       - "80:80"
     volumes:
-      - "./docker/nginx/nginx.conf:/etc/nginx/nginx.conf"
-      - "./docker/nginx/servers:/etc/nginx/conf.d"
-      - "~/path/to/www/app/logs/nginx/:/var/log/nginx"
-    volumes_from:
-      - php
+      - "~/Documents/www:/var/www/html:delegated"
     tty: true
 
   php:
@@ -22,17 +18,16 @@ services:
     ports:
       - "9000:9000"
     volumes:
-      - "~/path/to/www:/var/www/html"
-      - "./docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini"
+      - "~/Documents/www:/var/www/html:delegated"
     tty: true
 
-  percona:
-    image: percona:latest
+  mysql:
+    image: mariadb:latest
     env_file: docker-env
     ports:
       - "3306:3306"
     volumes:
-      - "./docker/percona/custom.cnf:/etc/mysql/conf.d/custom.cnf"
+      - "mysql:/var/lib/mysql"
     tty: true
 
   elk:
@@ -41,11 +36,9 @@ services:
     ports:
       - "81:80"
     volumes:
+      - "~/Documents/www:/var/www/html:delegated"
       - "./docker/elk/logstash:/etc/logstash"
       - "./docker/elk/logstash/patterns:/opt/logstash/patterns"
-    volumes_from:
-      - php
-      - nginx
     tty: true
 
   maildev:
@@ -54,3 +47,6 @@ services:
     ports:
       - "1080:80"
     tty: true
+
+volumes:
+  mysql: {}
