@@ -15,10 +15,14 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libxslt-dev \
     libssl-dev \
+    libjpeg-dev \
+    libpng-dev \
     unzip \
     ssmtp \
     ssh-client \
     openssl \
+    nodejs \
+    npm \
     mailutils && \
     docker-php-ext-configure bcmath && \
         docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && \
@@ -31,9 +35,11 @@ RUN apt-get update && apt-get install -y \
         pdo_mysql \
         soap \
         xsl \
+        sockets \
         zip && \
     apt-get clean && \
-    perl -pi -e "s/mailhub=mail/mailhub=maildev/" /etc/ssmtp/ssmtp.conf
+    perl -pi -e "s/mailhub=mail/mailhub=maildev/" /etc/ssmtp/ssmtp.conf && \
+    npm install -g yarn
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -48,6 +54,16 @@ RUN \
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
         -keyout /etc/ssl/private/localhost.key -out /etc/ssl/certs/localhost.crt \
         -subj "/CN=localhost"
+
+# Install gulp-cli globally
+RUN \
+    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash && \
+    export NVM_DIR="$HOME/.nvm" && \
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" && \
+    nvm install node && \
+    nvm use node && \
+    npm install -g gulp-cli
 
 RUN echo 'alias sf="php app/console"' >> ~/.bashrc
 RUN echo 'alias sf3="php bin/console"' >> ~/.bashrc
