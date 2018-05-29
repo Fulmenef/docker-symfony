@@ -1,10 +1,10 @@
-# Docker Symfony (PHP7-FPM - NGINX - MySQL - ELK - Maildev)
+# Docker Symfony 4 (PHP7-FPM - NGINX - MySQL - ELK - Maildev)
 
 [![Build Status](https://travis-ci.org/maxpou/docker-symfony.svg?branch=master)](https://travis-ci.org/maxpou/docker-symfony)
 
 ![](doc/schema.png)
 
-Docker-symfony gives you everything you need for developing Symfony application. This complete stack run with docker and [docker-compose (1.7 or higher)](https://docs.docker.com/compose/).
+Docker-symfony gives you everything you need for developing Symfony 4 application. This complete stack run with docker and [docker-compose (1.7 or higher)](https://docs.docker.com/compose/).
 
 ## Installation
 
@@ -42,16 +42,10 @@ Docker-symfony gives you everything you need for developing Symfony application.
         ```bash
         $ docker-compose exec php bash
         $ composer install
-        # Symfony2
         $ sf doctrine:database:create
         $ sf doctrine:schema:update --force
         # Only if you have `doctrine/doctrine-fixtures-bundle` installed
         $ sf doctrine:fixtures:load --no-interaction
-        # Symfony3
-        $ sf3 doctrine:database:create
-        $ sf3 doctrine:schema:update --force
-        # Only if you have `doctrine/doctrine-fixtures-bundle` installed
-        $ sf3 doctrine:fixtures:load --no-interaction
         ```
 
 5. Enjoy :-)
@@ -61,7 +55,7 @@ Docker-symfony gives you everything you need for developing Symfony application.
 Just run `docker-compose up -d`, then:
 
 * Symfony app: visit [symfony.local](http://symfony.local)  
-* Symfony dev mode: visit [symfony.local/app_dev.php](http://symfony.local/app_dev.php)  
+* Maildev: visit [symfony.local:1080](http://symfony.local:1080)
 * Logs (Kibana): [symfony.local:81](http://symfony.local:81)
 * Logs (files location): logs/nginx and logs/symfony
 
@@ -102,8 +96,7 @@ $ docker-compose exec php bash
 $ docker-compose exec php composer update
 
 # SF commands (Tips: there is an alias inside php container)
-$ docker-compose exec php php /var/www/symfony/app/console cache:clear # Symfony2
-$ docker-compose exec php php /var/www/symfony/bin/console cache:clear # Symfony3
+$ docker-compose exec php php /var/www/symfony/bin/console cache:clear
 # Same command by using alias
 $ docker-compose exec php bash
 $ sf cache:clear
@@ -116,8 +109,7 @@ $ docker inspect $(docker ps -f name=nginx -q) | grep IPAddress
 $ docker-compose exec percona mysql -uroot -p"root"
 
 # F***ing cache/logs folder
-$ sudo chmod -R 777 app/cache app/logs # Symfony2
-$ sudo chmod -R 777 var/cache var/logs var/sessions # Symfony3
+$ sudo chmod -R 777 var/cache var/logs var/sessions
 
 # Check CPU consumption
 $ docker stats $(docker inspect -f "{{ .Name }}" $(docker ps -q))
