@@ -30,16 +30,16 @@ services:
       - "mysql:/var/lib/mysql"
     tty: true
 
-  elk:
-    image: willdurand/elk
-    env_file: docker-env
-    ports:
-      - "81:80"
-    volumes:
-      - "~/Documents/www:/var/www/html:delegated"
-      - "./docker/elk/logstash:/etc/logstash"
-      - "./docker/elk/logstash/patterns:/opt/logstash/patterns"
-    tty: true
+#  elk:
+#    image: willdurand/elk
+#    env_file: docker-env
+#    ports:
+#      - "81:80"
+#    volumes:
+#      - "~/Documents/www:/var/www/html:delegated"
+#      - "./docker/elk/logstash:/etc/logstash"
+#      - "./docker/elk/logstash/patterns:/opt/logstash/patterns"
+#    tty: true
 
   maildev:
     image: djfarrelly/maildev:latest

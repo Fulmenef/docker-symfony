@@ -6,7 +6,8 @@ MAINTAINER Maxence POUTORD <maxence.poutord@gmail.com>
 USER root
 
 RUN apt-get update && apt-get install -y \
-    openssl \
+    php-calendar \
+#    openssl \
     bzip2 \
     libcurl4-openssl-dev \
     libicu-dev \
@@ -19,8 +20,7 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     unzip \
     ssmtp \
-    ssh-client \
-    openssl \
+#    ssh-client \
     nodejs \
     npm \
     mailutils && \
@@ -36,6 +36,7 @@ RUN apt-get update && apt-get install -y \
         soap \
         xsl \
         sockets \
+        calendar \
         zip && \
     apt-get clean && \
     perl -pi -e "s/mailhub=mail/mailhub=maildev/" /etc/ssmtp/ssmtp.conf && \
@@ -48,12 +49,12 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN docker-php-ext-install pdo pdo_mysql
 
 # Install and activate SSL
-RUN \
-    a2enmod ssl; \
-    mkdir -p /etc/ssl/private/ /etc/ssl/certs/ && \
-    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-        -keyout /etc/ssl/private/localhost.key -out /etc/ssl/certs/localhost.crt \
-        -subj "/CN=localhost"
+#RUN \
+#    a2enmod ssl; \
+#    mkdir -p /etc/ssl/private/ /etc/ssl/certs/ && \
+#    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+#        -keyout /etc/ssl/private/localhost.key -out /etc/ssl/certs/localhost.crt \
+#        -subj "/CN=localhost"
 
 # Install gulp-cli globally
 RUN \
