@@ -2,7 +2,6 @@
 /logs
 /.data
 .env
-docker-env
 /nginx/servers/*.conf
 !/nginx/servers/symfony.conf
 !/nginx/servers/symfony3.conf
