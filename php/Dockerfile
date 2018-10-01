@@ -44,3 +44,25 @@ RUN echo 'alias sf="php bin/console"' >> ~/.bashrc
 COPY custom.ini /usr/local/etc/php/conf.d/
 
 WORKDIR /var/www/html
+
+# Install custom entrypoint
+COPY entrypoint.sh /usr/local/bin/docker-custom-entrypoint
+RUN chmod 777 /usr/local/bin/docker-custom-entrypoint
+CMD ["php-fpm"]
+ENTRYPOINT ["docker-custom-entrypoint"]
+
+
+# ======================================================================================================================
+FROM symfony_php as symfony_php_blackfire
+RUN \
+    curl -sS https://packages.blackfire.io/binaries/blackfire-php/1.22.0/blackfire-php-alpine_amd64-php-71.so \
+        --output $(php -r "echo ini_get('extension_dir');")/blackfire.so && \
+    docker-php-ext-enable blackfire
+# ======================================================================================================================
+
+# ======================================================================================================================
+FROM symfony_php as symfony_php_xdebug
+RUN \
+    yes "" | pecl install xdebug && \
+    docker-php-ext-enable xdebug
+# ======================================================================================================================
